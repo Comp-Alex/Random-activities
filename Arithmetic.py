@@ -1,0 +1,10 @@
+print("Arithmetic operators in Python")
+print("Addition: 5 + 3 =", 5 + 3)
+print("Subtraction: 5 - 3 =", 5 - 3) 
+print("Multiplication: 5 * 3 =", 5 * 3)
+print("Division: 5 / 3 =", 5 / 3)
+print("Floor Division: 5 // 3 =", 5 // 3)
+print("Modulus: 5 % 3 =", 5 % 3)
+print("Exponentiation: 5 ** 3 =", 5 ** 3)
+print("End of arithmetic operations in print demonstration.")
+#sir sobra po...
