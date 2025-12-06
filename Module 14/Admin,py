@@ -1,0 +1,145 @@
+import csv
+import os
+
+csv_path = os.path.join(os.path.dirname(__file__), "users.csv")
+
+class User:
+	"""Simple User profile class.
+
+	Attributes:
+		first_name (str): User's first name
+		last_name (str): User's last name
+		email (str): Optional email address
+		age (int|None): Optional age
+		location (str): Optional location
+	"""
+
+	CSV_FILE = "users.csv"
+
+	def __init__(self, first_name, last_name, email="", age=None, location=""):
+		self.first_name = first_name
+		self.last_name = last_name
+		self.email = email
+		self.age = age
+		self.location = location
+
+	def describe_user(self):
+		"""Print a summary of the user's information."""
+		full_name = f"{self.first_name} {self.last_name}"
+		print(f"User: {full_name}")
+		if self.age is not None:
+			print(f"Age: {self.age}")
+		if self.email:
+			print(f"Email: {self.email}")
+		if self.location:
+			print(f"Location: {self.location}")
+
+	def greet_user(self):
+		"""Print a personalized greeting to the user."""
+		print(f"Hello, {self.first_name}! Welcome back.")
+
+	def save_to_csv(self):
+		"""Save user details to a CSV file."""
+		file_exists = os.path.isfile(self.CSV_FILE)
+		
+		with open(self.CSV_FILE, mode='a', newline='', encoding='utf-8') as file:
+			fieldnames = ['first_name', 'last_name', 'email', 'age', 'location']
+			writer = csv.DictWriter(file, fieldnames=fieldnames)
+			
+			# Write header only if file doesn't exist
+			if not file_exists:
+				writer.writeheader()
+			
+			# Write user data
+			writer.writerow({
+				'first_name': self.first_name,
+				'last_name': self.last_name,
+				'email': self.email,
+				'age': self.age if self.age is not None else '',
+				'location': self.location
+			})
+		
+		print(f"User {self.first_name} {self.last_name} saved to {self.CSV_FILE}")
+
+
+class Admin(User):
+	"""Administrator user with special privileges.
+	
+	Inherits from User and adds administrative privileges.
+	
+	Attributes:
+		privileges (list): List of privilege strings (e.g., "can add post", "can delete post")
+	"""
+	
+	def __init__(self, first_name, last_name, email="", age=None, location="", privileges=None):
+		"""Initialize an Admin user with optional privileges.
+		
+		Args:
+			privileges (list): List of privilege strings. Defaults to empty list.
+		"""
+		super().__init__(first_name, last_name, email, age, location)
+		self.privileges = privileges if privileges is not None else []
+	
+	def show_privileges(self):
+		"""Display the administrator's set of privileges."""
+		print(f"\n{self.first_name} {self.last_name}'s Privileges:")
+		if self.privileges:
+			for privilege in self.privileges:
+				print(f"  - {privilege}")
+		else:
+			print("  No privileges assigned.")
+
+
+if __name__ == "__main__":
+	# Load users from the local users.csv and display each without
+	# writing back to avoid redundancy.
+	users = []
+
+	if os.path.isfile(csv_path):
+		with open(csv_path, mode='r', newline='', encoding='utf-8') as file:
+			reader = csv.DictReader(file)
+			for row in reader:
+				age = int(row['age']) if row.get('age') else None
+				user = User(
+					row.get('first_name', ''),
+					row.get('last_name', ''),
+					email=row.get('email', ''),
+					age=age,
+					location=row.get('location', '')
+				)
+				users.append(user)
+	else:
+		print(f"CSV file not found at {csv_path}. Please create `users.csv` in this folder first.")
+
+	# Show each user only when iterating (no redundant CSV writes)
+	for u in users:
+		u.describe_user()
+		u.greet_user()
+		print("-" * 40)
+	
+	# Create and demonstrate an Admin instance from CSV data
+	if users:
+		print("\n" + "=" * 40)
+		print("ADMIN DEMONSTRATION")
+		print("=" * 40)
+		
+		# Convert the first user to an admin with privileges
+		first_user = users[0]
+		admin = Admin(
+			first_user.first_name,
+			first_user.last_name,
+			email=first_user.email,
+			age=first_user.age,
+			location=first_user.location,
+			privileges=[
+				"can add post",
+				"can delete post",
+				"can ban user",
+				"can manage users",
+				"can view analytics"
+			]
+		)
+		
+		admin.describe_user()
+		admin.greet_user()
+		admin.show_privileges()
